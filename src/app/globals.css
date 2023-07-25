@@ -6,6 +6,7 @@
 	--foreground-rgb: 0, 0, 0;
 	--background-start-rgb: 214, 219, 220;
 	--background-end-rgb: 255, 255, 255;
+	overflow-x: hidden;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -17,4 +18,8 @@
 body {
 	color: rgb(var(--foreground-rgb));
 	background-color: #f4d8cd;
+}
+
+h1 {
+	font-size: calc(1.325rem + 0.9vw);
 }
