@@ -18,17 +18,16 @@ export default function AdminLayout({
 	const [isDisplayed, setDisplay] = useState(false);
 	function showNav() {
 		setDisplay(!isDisplayed);
-		console.log("hello" + isDisplayed);
 	}
 	return (
-		<div className="grid grid-cols-12 h-screen">
+		<div className="grid h-screen grid-cols-12">
 			<Navigation
-				className={isDisplayed ? "fixed block" : "static hidden"}></Navigation>
-			<main className="col-span-12 md:col-span-9 lg:col-span-10 p-4 bg-white">
+				className={isDisplayed ? "fixed z-50 block" : "static hidden"}></Navigation>
+			<main className="col-span-12 bg-white p-4 md:col-span-9 lg:col-span-10">
 				{children}
 			</main>
 			{/* MOBILE ONLY */}
-			<FloatingActionButton className="flex md:hidden z-50" onclick={showNav}>
+			<FloatingActionButton className="z-50 flex md:hidden" onclick={showNav}>
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
 					width="16"

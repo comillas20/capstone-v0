@@ -1,7 +1,8 @@
 "use client";
 import DropDown from "../../../components/DropDown";
 import Header from "../components/Header";
-export default function Orders() {
+import Table from "../components/Table";
+export default function Reservations() {
 	const sortByTimeOptions = ["This day", "This week", "This month", "This year"];
 	const sortByStatusOptions = ["All", "Pending", "Accepted"];
 	function sortByTime(selectedTime: string) {
@@ -12,11 +13,26 @@ export default function Orders() {
 		//sort table by status
 		console.log(selectedStatus);
 	}
+	// temp data
+	const headers = ["id", "firstname", "MI", "Lastname", "Status"];
+	const data = [
+		["1", "jin", "c", "com", "accepted"],
+		["2", "jhin", "crit", "adc", "pending"],
+		["1", "jin", "c", "com", "accepted"],
+		["2", "jhin", "crit", "adc", "pending"],
+		["1", "jin", "c", "com", "accepted"],
+		["2", "jhin", "crit", "adc", "pending"],
+		["1", "jin", "c", "com", "accepted"],
+		["2", "jhin", "crit", "adc", "pending"],
+		["1", "jin", "c", "com", "accepted"],
+		["2", "jhin", "crit", "adc", "pending"],
+	];
 	return (
 		<>
-			<Header name="Orders">
+			<Header name="Reservations">
 				<DropDown
 					key={"sortByStatus"}
+					defaultSelected={sortByStatusOptions[1]}
 					icon={
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
@@ -33,6 +49,7 @@ export default function Orders() {
 				</DropDown>
 				<DropDown
 					key={"sortByTime"}
+					defaultSelected={sortByTimeOptions[0]}
 					icon={
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
@@ -48,6 +65,27 @@ export default function Orders() {
 					{sortByTimeOptions}
 				</DropDown>
 			</Header>
+			<div className="mb-6 flex justify-end gap-2">
+				<span className="flex items-end text-xs font-light">
+					Last updated 15 min ago
+				</span>
+				<button className="text-sm font-light">
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						width="16"
+						height="16"
+						fill="currentColor"
+						className="animate-spins mr-1 transition-transform hover:rotate-180"
+						viewBox="0 0 16 16">
+						<path
+							fillRule="evenodd"
+							d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"
+						/>
+						<path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z" />
+					</svg>
+				</button>
+			</div>
+			<Table className="w-full" headers={headers} data={data}></Table>
 		</>
 	);
 }

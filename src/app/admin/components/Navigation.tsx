@@ -11,9 +11,9 @@ export default function Navigation({ className }: NavigationProps) {
 			{ icon: "#house", name: "Dashboard", href: "/admin" },
 			{
 				icon: "#file-earmark-text",
-				name: "Orders",
+				name: "Reservations",
 				notification: 99,
-				href: "/admin/orders",
+				href: "/admin/reservations",
 			},
 			{ icon: "#box", name: "Products", href: "/admin/products" },
 			//A reminder, customers also holds the account requests, so dont make a seperate button
@@ -46,7 +46,7 @@ export default function Navigation({ className }: NavigationProps) {
 			<nav
 				className={twMerge(
 					className,
-					"md:static md:block md:col-span-3 lg:col-span-2 h-screen pt-4 bg-bgLight border-r border-opacity-25 border-brand"
+					"h-screen border-r border-brand-700 border-opacity-25 bg-brand-200 pt-4 shadow-2xl md:static md:col-span-3 md:block lg:col-span-2"
 				)}>
 				<NavSvgs></NavSvgs>
 				{navButtonProps.map((set, setIndex) =>
@@ -55,14 +55,14 @@ export default function Navigation({ className }: NavigationProps) {
 							<React.Fragment key={setIndex + "-" + navButtonIndex}>
 								<Link
 									className={twMerge(
-										"group font-medium mr-2.5 cursor-pointer gap-2 align-middle flex px-4 py-2 w-full items-center hover:bg-brand hover:text-white",
-										currentRoute === navButton.href ? "bg-brand text-white" : ""
+										"group mr-2.5 flex w-full cursor-pointer items-center gap-2 px-4 py-2 align-middle font-medium hover:bg-brand-700 hover:text-white",
+										currentRoute === navButton.href ? "bg-brand-700 text-white" : ""
 									)}
 									href={navButton.href}>
 									<svg
 										className={twMerge(
-											"inline w-4 h-4 align-[-0.125em] justify-center group-hover:text-inherit",
-											currentRoute === navButton.href ? "text-white" : "text-brand"
+											"inline h-4 w-4 justify-center align-[-0.125em] group-hover:text-inherit",
+											currentRoute === navButton.href ? "text-white" : "text-black"
 										)}>
 										<use href={navButton.icon}></use>
 									</svg>
@@ -70,7 +70,7 @@ export default function Navigation({ className }: NavigationProps) {
 								</Link>
 								{navButtonIndex === set.length - 1 &&
 									setIndex < navButtonProps.length - 1 && (
-										<hr className="w-5/6 my-4 mx-auto border-brand" />
+										<hr className="mx-auto my-4 w-5/6 border-brand" />
 									)}
 							</React.Fragment>
 						);

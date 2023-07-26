@@ -14,13 +14,13 @@ module.exports = {
 			},
 			colors: {
 				brand: {
-					100: "#FE0B24",
-					200: "#F40119",
-					300: "#df0117",
-					DEFAULT: "#c20114",
-					500: "#B70113",
-					600: "#A20111",
-					700: "#8E010F",
+					100: "#FFC2C8",
+					200: "#FE9AA4",
+					300: "#FE717F",
+					DEFAULT: "#FE485A",
+					500: "#FE2036",
+					600: "#F40119",
+					700: "#C20114",
 				},
 				accentDark: {
 					100: "#2D808B",
@@ -31,10 +31,10 @@ module.exports = {
 					600: "#14393E",
 					700: "#0F2B2E",
 				},
-				bgLight: {
+				primaryLight: {
 					DEFAULT: "#F4D8CD",
 				},
-				bgDark: {
+				primaryDark: {
 					DEFAULT: "#3A2E39",
 				},
 				accentLight: {

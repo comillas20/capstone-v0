@@ -23,3 +23,8 @@ body {
 h1 {
 	font-size: calc(1.325rem + 0.9vw);
 }
+
+th {
+	text-align: inherit;
+	text-align: -webkit-match-parent;
+}
