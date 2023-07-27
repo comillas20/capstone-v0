@@ -19,7 +19,7 @@
 				"name": "next"
 			}
 		],
-		"baseUrl": "./src/*",
+		"baseUrl": "./src/",
 		"paths": {
 			"@app/*": ["app/*"],
 			"@admin/*": ["app/admin/*"],

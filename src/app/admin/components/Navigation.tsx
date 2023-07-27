@@ -1,11 +1,14 @@
+"use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import React from "react";
+import React, { useState } from "react";
 import { twMerge } from "tailwind-merge";
-type NavigationProps = {
-	className: string;
-};
-export default function Navigation({ className }: NavigationProps) {
+import FloatingActionButton from "@components/FloatingActionButton";
+export default function Navigation() {
+	const [isDisplayed, setDisplay] = useState(false);
+	function showNav() {
+		setDisplay(!isDisplayed);
+	}
 	const navButtonProps = [
 		[
 			{ icon: "#house", name: "Dashboard", href: "/admin" },
@@ -45,7 +48,7 @@ export default function Navigation({ className }: NavigationProps) {
 		<>
 			<nav
 				className={twMerge(
-					className,
+					isDisplayed ? "fixed z-50 block" : "static hidden",
 					"h-screen border-r border-brand-700 border-opacity-25 bg-brand-200 pt-4 shadow-2xl md:static md:col-span-3 md:block lg:col-span-2"
 				)}>
 				<NavSvgs></NavSvgs>
@@ -55,7 +58,7 @@ export default function Navigation({ className }: NavigationProps) {
 							<React.Fragment key={setIndex + "-" + navButtonIndex}>
 								<Link
 									className={twMerge(
-										"group mr-2.5 flex w-full cursor-pointer items-center gap-2 px-4 py-2 align-middle font-medium hover:bg-brand-700 hover:text-white",
+										"group mb-0.5 mr-2.5 flex w-full cursor-pointer items-center gap-2 px-4 py-2 align-middle font-medium hover:bg-brand-700 hover:text-white",
 										currentRoute === navButton.href ? "bg-brand-700 text-white" : ""
 									)}
 									href={navButton.href}>
@@ -77,6 +80,20 @@ export default function Navigation({ className }: NavigationProps) {
 					})
 				)}
 			</nav>
+			{/* MOBILE ONLY */}
+			<FloatingActionButton className="z-50 flex md:hidden" onclick={showNav}>
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					width="16"
+					height="16"
+					fill="currentColor"
+					viewBox="0 0 16 16">
+					<path
+						fillRule="evenodd"
+						d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"
+					/>
+				</svg>
+			</FloatingActionButton>
 		</>
 	);
 }
