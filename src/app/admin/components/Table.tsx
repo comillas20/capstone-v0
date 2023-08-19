@@ -5,7 +5,7 @@ export default function Table({
 	headers,
 }: {
 	className?: string;
-	data: string[][];
+	data: React.ReactNode[][];
 	headers: string[];
 }) {
 	return (

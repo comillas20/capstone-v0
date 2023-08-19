@@ -19,4 +19,33 @@ model User {
   email String? @unique
   phone Int? @unique
   password String
+  role Role
+  createdAt DateTime @default(now())
+  userPreference UserPreferences?
+}
+
+model UserPreferences{
+  id String @id @default(uuid())
+  receiveEmailUpdates Boolean @default(false)
+  receivePhoneUpdates Boolean @default(false)
+  user User @relation(fields: [userID], references: [id])
+  userID String @unique
+}
+
+model Products{
+  id String @id @default(uuid())
+  name String
+  img String
+  description String
+  isAvailable Boolean
+}
+
+model Reservations{
+  id String @id @default(uuid())
+  userID String
+}
+
+enum Role {
+  USER
+  ADMIN
 }

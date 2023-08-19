@@ -1,44 +1,42 @@
 import Header from "../components/Header";
-import Table from "../components/Table";
-export default function Products() {
-	// temp data
-	const headers = ["id", "firstname", "MI", "Lastname", "Status"];
-	const data = [
-		["1", "jin", "c", "com", "accepted"],
-		["2", "jhin", "crit", "adc", "pending"],
-		["1", "jin", "c", "com", "accepted"],
-		["2", "jhin", "crit", "adc", "pending"],
-		["1", "jin", "c", "com", "accepted"],
-		["2", "jhin", "crit", "adc", "pending"],
-		["1", "jin", "c", "com", "accepted"],
-		["2", "jhin", "crit", "adc", "pending"],
-		["1", "jin", "c", "com", "accepted"],
-		["2", "jhin", "crit", "adc", "pending"],
-		["1", "jin", "c", "com", "accepted"],
-		["2", "jhin", "crit", "adc", "pending"],
-		["1", "jin", "c", "com", "accepted"],
-		["2", "jhin", "crit", "adc", "pending"],
-		["1", "jin", "c", "com", "accepted"],
-		["2", "jhin", "crit", "adc", "pending"],
-		["1", "jin", "c", "com", "accepted"],
-		["2", "jhin", "crit", "adc", "pending"],
-		["1", "jin", "c", "com", "accepted"],
-		["2", "jhin", "crit", "adc", "pending"],
-		["1", "jin", "c", "com", "accepted"],
-		["2", "jhin", "crit", "adc", "pending"],
-		["1", "jin", "c", "com", "accepted"],
-		["2", "jhin", "crit", "adc", "pending"],
-		["1", "jin", "c", "com", "accepted"],
-		["2", "jhin", "crit", "adc", "pending"],
-		["1", "jin", "c", "com", "accepted"],
-		["2", "jhin", "crit", "adc", "pending"],
-		["1", "jin", "c", "com", "accepted"],
-		["2", "jhin", "crit", "adc", "pending"],
-	];
+import Link from "next/link";
+import NewProductModal from "./NewProductModal";
+import { getAllProducts } from "./serverActions";
+export default async function Products() {
+	const headers = ["id", "name", "description", "isAvailable"];
+	const data = await getAllProducts();
 	return (
 		<>
-			<Header name="Products"></Header>
-			<Table className="h-[69vh] w-full" data={data} headers={headers}></Table>
+			<Header name="Products">
+				<NewProductModal></NewProductModal>
+			</Header>
+			<div className="h-[69vh] w-full overflow-y-auto">
+				<table className="w-full">
+					<thead className="sticky top-0 bg-white">
+						<tr>
+							{headers.map((value, index) => (
+								<th key={index}>{value}</th>
+							))}
+						</tr>
+					</thead>
+					<tbody>
+						{data.map((entries, dataIndex) => (
+							<tr
+								key={dataIndex}
+								className={(dataIndex % 2 == 1 ? "bg-brand-200/40" : "").concat(
+									" border-b border-brand-100"
+								)}>
+								<td>{entries.id}</td>
+								<td>
+									<Link href={"products/".concat(entries.id)}>{entries.name}</Link>
+								</td>
+								<td>{entries.description}</td>
+								<td>{entries.isAvailable.toString()}</td>
+							</tr>
+						))}
+					</tbody>
+				</table>
+			</div>
 		</>
 	);
 }

@@ -1,3 +1,10 @@
+import Header from "../components/Header";
+
 export default function Reports() {
-	return <div>REPORTS</div>;
+	return (
+		<>
+			<Header name="Reports"></Header>
+			<div>*insert chart here</div>
+		</>
+	);
 }

@@ -4,15 +4,13 @@
 
 :root {
 	--foreground-rgb: 0, 0, 0;
-	--background-start-rgb: 214, 219, 220;
-	--background-end-rgb: 255, 255, 255;
 }
 
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
 	body {
 		background-color: #3a2e39;
 	}
-}
+} */
 
 html,
 body {
@@ -21,11 +19,18 @@ body {
 
 body {
 	color: rgb(var(--foreground-rgb));
-	background-color: #f4d8cd;
 }
 
 h1 {
 	font-size: calc(1.325rem + 0.9vw);
+}
+
+h2 {
+	font-size: calc(1.3rem + 0.6vw);
+}
+
+h3 {
+	font-size: calc(1.275rem + 0.3vw);
 }
 
 th {

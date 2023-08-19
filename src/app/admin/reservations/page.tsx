@@ -1,21 +1,51 @@
 "use client";
-import DropDown from "../../../components/DropDown";
+import DropDown from "@components/DropDown";
 import Header from "../components/Header";
 import Table from "../components/Table";
+import { useEffect, useState } from "react";
 export default function Reservations() {
 	const sortByTimeOptions = ["This day", "This week", "This month", "This year"];
 	const sortByStatusOptions = ["All", "Pending", "Accepted"];
 	function sortByTime(selectedTime: string) {
 		//sort table by time
-		console.log(selectedTime);
 	}
 	function sortByStatus(selectedStatus: string) {
 		//sort table by status
-		console.log(selectedStatus);
+	}
+	const [lastUpdated, setLastUpdated] = useState(0);
+	const updateTimeInMinutes = 15;
+	useEffect(() => {
+		const interval = setInterval(() => {
+			setLastUpdated(prevUpdate => prevUpdate + 15);
+		}, updateTimeInMinutes * 60000);
+		return () => clearInterval(interval);
+	}, []);
+	function refreshList() {
+		setLastUpdated(0);
 	}
 	// temp data
 	const headers = ["id", "firstname", "MI", "Lastname", "Status"];
 	const data = [
+		["1", "jin", "c", "com", "accepted"],
+		["2", "jhin", "crit", "adc", "pending"],
+		["1", "jin", "c", "com", "accepted"],
+		["2", "jhin", "crit", "adc", "pending"],
+		["1", "jin", "c", "com", "accepted"],
+		["2", "jhin", "crit", "adc", "pending"],
+		["1", "jin", "c", "com", "accepted"],
+		["2", "jhin", "crit", "adc", "pending"],
+		["1", "jin", "c", "com", "accepted"],
+		["2", "jhin", "crit", "adc", "pending"],
+		["1", "jin", "c", "com", "accepted"],
+		["2", "jhin", "crit", "adc", "pending"],
+		["1", "jin", "c", "com", "accepted"],
+		["2", "jhin", "crit", "adc", "pending"],
+		["1", "jin", "c", "com", "accepted"],
+		["2", "jhin", "crit", "adc", "pending"],
+		["1", "jin", "c", "com", "accepted"],
+		["2", "jhin", "crit", "adc", "pending"],
+		["1", "jin", "c", "com", "accepted"],
+		["2", "jhin", "crit", "adc", "pending"],
 		["1", "jin", "c", "com", "accepted"],
 		["2", "jhin", "crit", "adc", "pending"],
 		["1", "jin", "c", "com", "accepted"],
@@ -66,10 +96,14 @@ export default function Reservations() {
 				</DropDown>
 			</Header>
 			<div className="mb-6 flex justify-end gap-2">
-				<span className="flex items-end text-xs font-light">
-					Last updated 15 min ago
-				</span>
-				<button className="text-sm font-light">
+				{/* for some dumb reason I cant pinpoint, "lastUpdated && ..." doesnt work, 
+				everything is hidden apart from a single 0 when lastUpdated == 0 */}
+				{lastUpdated != 0 && (
+					<span className="flex items-end text-xs font-light">
+						Last updated {lastUpdated} min ago
+					</span>
+				)}
+				<button className="text-sm font-light" onClick={refreshList}>
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
 						width="16"
@@ -85,7 +119,7 @@ export default function Reservations() {
 					</svg>
 				</button>
 			</div>
-			<Table className="w-full" headers={headers} data={data}></Table>
+			<Table className="h-96 w-full" headers={headers} data={data}></Table>
 		</>
 	);
 }

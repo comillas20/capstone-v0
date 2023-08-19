@@ -48,8 +48,8 @@ export default function Navigation() {
 		<>
 			<nav
 				className={twMerge(
-					isDisplayed ? "fixed z-50 block" : "static hidden",
-					"h-screen border-r border-brand-700 border-opacity-25 bg-brand-200 pt-4 shadow-2xl md:static md:col-span-3 md:block lg:col-span-2"
+					isDisplayed ? "fixed right-0 z-50 block pb-20" : "static hidden",
+					"h-screen border-r border-brand-700 border-opacity-25 bg-primaryLight pt-4 shadow-2xl md:static md:right-auto md:col-span-3 md:block lg:col-span-2"
 				)}>
 				<NavSvgs></NavSvgs>
 				{navButtonProps.map((set, setIndex) =>

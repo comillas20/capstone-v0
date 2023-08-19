@@ -1,9 +1,9 @@
-export async function generateMetadata() {
-	return {
-		title: "Jakelou - Admin",
-		description: "Admin dashboard for management",
-	};
-}
-export default function AdminPage() {
-	return <>Dashboard</>;
+import Header from "./components/Header";
+
+export default function Dashboard() {
+	return (
+		<>
+			<Header name="Dashboard"></Header>
+		</>
+	);
 }
