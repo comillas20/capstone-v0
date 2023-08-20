@@ -1,6 +1,7 @@
 "use client";
 import { useRef, useTransition } from "react";
 import { createNewProduct } from "./serverActions";
+import Button from "../components/Button";
 
 function NewProductModal() {
 	const modalRef = useRef<HTMLDialogElement>(null);
@@ -8,19 +9,23 @@ function NewProductModal() {
 	const [isPending, startTransition] = useTransition();
 	return (
 		<>
-			<button
-				className="focus-visible:outline-accentDark-700-700 group flex items-center gap-1 rounded-lg border border-accentDark-700 bg-white px-2 py-1 text-sm font-light text-accentDark-700 hover:bg-accentDark-700 hover:text-white focus-visible:bg-accentDark-700 focus-visible:text-white focus-visible:outline focus-visible:outline-1"
+			<Button
 				onClick={() => {
 					if (isPending) return;
 					modalRef.current?.showModal();
 				}}>
 				{isPending ? "Saving..." : "New +"}
-			</button>
+			</Button>
 			<dialog ref={modalRef}>
 				<form
 					action={e => {
 						formRef.current?.reset();
-						startTransition(() => createNewProduct(e));
+						startTransition(async () => {
+							const product = await createNewProduct(e);
+							if (product) {
+								alert(product.name + " is successfully created!");
+							} else alert("The product was not created.");
+						});
 					}}
 					className="flex flex-col gap-4 p-4"
 					ref={formRef}>

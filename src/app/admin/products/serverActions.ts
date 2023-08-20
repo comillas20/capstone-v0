@@ -13,15 +13,30 @@ export async function createNewProduct(event: FormData) {
 			data: {
 				name: productName,
 				description: productDesc,
-				img: "N/A",
+				imgUrl: "N/A",
 				isAvailable: availability,
+			},
+			select: {
+				name: true,
+				description: true,
+				isAvailable: true,
 			},
 		});
 		revalidatePath("/products");
-	}
+		return product;
+	} else return null;
 }
 
 export async function getAllProducts() {
 	const products = await prismadb.products.findMany();
 	return products;
+}
+
+export async function getProduct(id: string) {
+	const product = await prismadb.products.findUnique({
+		where: {
+			id: id,
+		},
+	});
+	return product;
 }

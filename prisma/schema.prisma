@@ -34,8 +34,8 @@ model UserPreferences{
 
 model Products{
   id String @id @default(uuid())
-  name String
-  img String
+  name String @unique
+  imgUrl String
   description String
   isAvailable Boolean
 }

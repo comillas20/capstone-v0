@@ -2,6 +2,7 @@ import Header from "../components/Header";
 import Link from "next/link";
 import NewProductModal from "./NewProductModal";
 import { getAllProducts } from "./serverActions";
+import Button from "../components/Button";
 export default async function Products() {
 	const headers = ["id", "name", "description", "isAvailable"];
 	const data = await getAllProducts();
@@ -9,6 +10,7 @@ export default async function Products() {
 		<>
 			<Header name="Products">
 				<NewProductModal></NewProductModal>
+				<Button>Delete</Button>
 			</Header>
 			<div className="h-[69vh] w-full overflow-y-auto">
 				<table className="w-full">
