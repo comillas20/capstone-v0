@@ -2,12 +2,12 @@ import EditableText from "@components/EditableText";
 import Image from "next/image";
 import prismadb from "../../../../../lib/prismadb";
 type ProductProps = {
-	params: { id: string };
+	params: { name: string };
 };
 export async function generateMetadata({ params }: ProductProps) {
 	const product = await prismadb.products.findUnique({
 		where: {
-			id: params.id,
+			name: params.name,
 		},
 	});
 	return {
@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: ProductProps) {
 export default async function Product({ params }: ProductProps) {
 	const product = await prismadb.products.findUnique({
 		where: {
-			id: params.id,
+			name: params.name,
 		},
 	});
 	return (

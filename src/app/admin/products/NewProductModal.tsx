@@ -2,11 +2,13 @@
 import { useRef, useTransition } from "react";
 import { createNewProduct } from "./serverActions";
 import Button from "../components/Button";
+import { useSWRConfig } from "swr";
 
 function NewProductModal() {
 	const modalRef = useRef<HTMLDialogElement>(null);
 	const formRef = useRef<HTMLFormElement>(null);
 	const [isPending, startTransition] = useTransition();
+	const { mutate } = useSWRConfig();
 	return (
 		<>
 			<Button
@@ -24,6 +26,7 @@ function NewProductModal() {
 							const product = await createNewProduct(e);
 							if (product) {
 								alert(product.name + " is successfully created!");
+								mutate("getAllProducts");
 							} else alert("The product was not created.");
 						});
 					}}
