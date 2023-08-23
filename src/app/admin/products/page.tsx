@@ -3,7 +3,6 @@ import Header from "../components/Header";
 import {
 	createNewProduct,
 	deleteProducts,
-	editProduct,
 	getAllProducts,
 } from "./serverActions";
 import Button from "../components/Button";
@@ -11,6 +10,7 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import useSWR, { useSWRConfig } from "swr";
 import { useRouter } from "next/navigation";
 import { twMerge } from "tailwind-merge";
+import Alert from "@components/Alert";
 
 export default function Products() {
 	const headers = ["id", "name", "description", "isAvailable"];
@@ -22,12 +22,33 @@ export default function Products() {
 	const { mutate } = useSWRConfig();
 	const [selectMode, setSelectMode] = useState(false);
 	const [selectedRows, setSelectedRows] = useState<string[]>([]);
+	const [notification, setNotification] = useState<{
+		visibility: boolean;
+		text: string;
+		msgType: "Success" | "Failed" | "Error" | "Normal";
+	}>({
+		visibility: false,
+		text: "",
+		msgType: "Normal",
+	});
 	const router = useRouter();
-	let isAddingProduct: boolean = false;
+	let holdProductTimeout: NodeJS.Timeout;
 
 	useEffect(() => {
-		setSelectedRows([]);
+		if (!selectMode && selectedRows.length != 0) {
+			setSelectedRows([]);
+		}
 	}, [selectMode]);
+
+	useEffect(() => {
+		const timeout = setTimeout(() => {
+			if (notification.visibility)
+				setNotification({ visibility: false, text: "", msgType: "Normal" });
+			else {
+				clearTimeout(timeout);
+			}
+		}, 5000);
+	}, [notification.visibility]);
 
 	return (
 		<>
@@ -35,21 +56,20 @@ export default function Products() {
 				<Button
 					onClick={() => {
 						if (isSaving) return;
-						isAddingProduct = true;
 						modalRef.current?.showModal();
 					}}>
-					{isSaving && isAddingProduct ? "Saving..." : "New +"}
-				</Button>
-				<Button
-					className={
-						selectMode
-							? "bg-accentDark-700 px-2 py-1 text-sm text-white focus-visible:outline focus-visible:outline-1 focus-visible:outline-white"
-							: ""
-					}
-					onClick={() => setSelectMode(!selectMode)}>
-					Select
+					{isSaving ? "Saving..." : "New +"}
 				</Button>
 			</Header>
+			{notification.visibility && (
+				<Alert
+					messageType={notification.msgType}
+					onClose={() => {
+						setNotification({ visibility: false, text: "", msgType: "Normal" });
+					}}>
+					{notification.text}
+				</Alert>
+			)}
 			{isLoading ? (
 				<div>Loading...</div>
 			) : error ? (
@@ -71,21 +91,64 @@ export default function Products() {
 										onClick={() => {
 											if (selectMode) {
 												const doesExist = selectedRows.find(e => e === entries.id);
-												if (doesExist)
-													setSelectedRows(prevSelectedRows =>
-														prevSelectedRows.filter(e => e !== entries.id)
-													);
-												else
+												if (doesExist) {
+													setSelectedRows(prevSelectedRows => {
+														const newSelectedRows = prevSelectedRows.filter(
+															e => e !== entries.id
+														);
+														if (newSelectedRows.length === 0) {
+															setSelectMode(false);
+														}
+														return newSelectedRows;
+													});
+												} else
 													setSelectedRows(prevSelectedRows => [
 														...prevSelectedRows,
 														entries.id,
 													]);
 											} else router.push("products/".concat(entries.name));
 										}}
+										onMouseDown={() => {
+											holdProductTimeout = setTimeout(() => {
+												setSelectMode(true);
+											}, 1000);
+										}}
+										onMouseUp={() => {
+											clearTimeout(holdProductTimeout);
+										}}
+										onTouchStart={() => {
+											holdProductTimeout = setTimeout(() => {
+												setSelectMode(prevMode => {
+													const doesExist = selectedRows.find(e => e === entries.id);
+													if (doesExist) {
+														setSelectedRows(prevSelectedRows => {
+															const newSelectedRows = prevSelectedRows.filter(
+																e => e !== entries.id
+															);
+															if (newSelectedRows.length === 0) {
+																setSelectMode(false);
+															}
+															return newSelectedRows;
+														});
+													} else
+														setSelectedRows(prevSelectedRows => [
+															...prevSelectedRows,
+															entries.id,
+														]);
+													return true;
+												});
+											}, 1000);
+										}}
+										onTouchEnd={() => {
+											clearTimeout(holdProductTimeout);
+										}}
+										onTouchCancel={() => {
+											clearTimeout(holdProductTimeout);
+										}}
 										key={dataIndex}
 										className={twMerge(
 											dataIndex % 2 == 1 ? "bg-brand-200/40" : "",
-											" border-b border-brand-100 hover:bg-accentDark hover:text-white",
+											" border-b border-brand-100 hover:cursor-pointer hover:bg-accentDark hover:text-white",
 											selectedRows.find(e => e === entries.id)
 												? "bg-accentDark-700 text-white"
 												: ""
@@ -102,26 +165,36 @@ export default function Products() {
 			)}
 			{selectMode && (
 				<div className="mt-4 flex w-full flex-row justify-end gap-4">
-					<Button
-						disabled={selectedRows.length > 1 || selectedRows.length === 0}
-						onClick={() => {
-							if (isSaving) return;
-							isAddingProduct = false;
-							modalRef.current?.showModal();
-						}}>
-						{isSaving && !isAddingProduct ? "Saving..." : "Edit"}
-					</Button>
+					{selectMode && <Button onClick={() => setSelectMode(false)}>Clear</Button>}
 					<Button
 						disabled={selectedRows.length === 0}
 						onClick={() =>
 							startDeleting(async () => {
 								const products = await deleteProducts(selectedRows);
-								mutate("getAllProducts");
+
 								if (products > 1) {
-									alert("Products are successfully deleted!");
+									setNotification({
+										visibility: true,
+										text: "Products selected are successfully deleted!",
+										msgType: "Success",
+									});
 								} else if (products) {
-									alert("The product is successfully deleted!");
-								} else alert("The products were not deleted.");
+									setNotification({
+										visibility: true,
+										text:
+											"The product " +
+											data?.find(e => e.id === selectedRows[0])?.name +
+											" is successfully deleted!",
+										msgType: "Success",
+									});
+								} else
+									setNotification({
+										visibility: true,
+										text: "The products were not deleted.",
+										msgType: "Failed",
+									});
+								mutate("getAllProducts");
+								setSelectMode(false);
 							})
 						}>
 						{isDeleting ? "Deleting... " : "Delete"}
@@ -133,20 +206,20 @@ export default function Products() {
 					action={e => {
 						formRef.current?.reset();
 						startSaving(async () => {
-							if (isAddingProduct) {
-								const product = await createNewProduct(e);
-								if (product) {
-									alert(product.name + " is successfully created!");
-									mutate("getAllProducts");
-								} else alert("The product was not created.");
-							} else {
-								if (!selectedRows[0]) return;
-								const product = await editProduct(e, selectedRows[0]);
-								if (product) {
-									alert(product.name + " is successfully modified!");
-									mutate("getAllProducts");
-								} else alert("The product was not modified.");
-							}
+							const product = await createNewProduct(e);
+							if (product) {
+								setNotification({
+									visibility: true,
+									text: "The product is successfully created!",
+									msgType: "Success",
+								});
+								mutate("getAllProducts");
+							} else
+								setNotification({
+									visibility: true,
+									text: "The product creation failed.",
+									msgType: "Failed",
+								});
 						});
 					}}
 					className="flex flex-col gap-4 p-4"
@@ -156,27 +229,13 @@ export default function Products() {
 						placeholder="Product name"
 						name="productName"
 						required
-						value={
-							!isAddingProduct && data?.find(obj => obj.id === selectedRows[0])?.name
-						}
 					/>
 					<textarea
 						className="h-36 w-96 resize-none"
 						placeholder="Description"
-						name="productDesc"
-						defaultValue={
-							!isAddingProduct &&
-							data?.find(obj => obj.id === selectedRows[0])?.description
-						}></textarea>
+						name="productDesc"></textarea>
 					<label className="self-end">
-						<input
-							type="checkbox"
-							name="availability"
-							checked={
-								!isAddingProduct &&
-								data?.find(obj => obj.id === selectedRows[0])?.isAvailable
-							}
-						/>
+						<input type="checkbox" name="availability" />
 						Available
 					</label>
 
