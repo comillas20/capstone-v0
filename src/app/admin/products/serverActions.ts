@@ -1,25 +1,27 @@
 "use server";
-import { revalidatePath } from "next/cache";
 import prismadb from "../../../../lib/prismadb";
 export async function createNewProduct(event: FormData) {
 	const productName = event.get("productName")?.toString();
-	const productDesc = event.get("productDesc")
-		? event.get("productDesc")?.toString()
-		: "N/A";
+	const productDesc = event.get("productDesc")?.toString();
+	const categoryName = event.get("categoryName")?.toString();
 	//"on" is the default value an <input type="checkbox"/> gives when its checked and is submitted
 	const availability = event.get("availability") === "on";
-	if (productName && productDesc) {
+	if (productName && categoryName) {
 		const product = await prismadb.products.create({
 			data: {
 				name: productName,
 				description: productDesc,
-				imgUrl: "N/A",
 				isAvailable: availability,
+				imgUrl: "N/A",
+				category: {
+					connectOrCreate: {
+						where: { name: categoryName },
+						create: { name: categoryName },
+					},
+				},
 			},
-			select: {
-				name: true,
-				description: true,
-				isAvailable: true,
+			include: {
+				category: true,
 			},
 		});
 		return product;
@@ -27,7 +29,11 @@ export async function createNewProduct(event: FormData) {
 }
 
 export async function getAllProducts() {
-	const products = await prismadb.products.findMany();
+	const products = await prismadb.products.findMany({
+		include: {
+			category: true,
+		},
+	});
 	return products;
 }
 
@@ -39,6 +45,7 @@ export async function getProduct(id: string) {
 	});
 	return product;
 }
+
 export async function deleteProducts(productID: string[]) {
 	const products = await prismadb.products.deleteMany({
 		where: {
@@ -53,17 +60,14 @@ export async function deleteProducts(productID: string[]) {
 
 export async function editProduct(event: FormData, productID: string) {
 	const productName = event.get("productName")?.toString();
-	const productDesc = event.get("productDesc")
-		? event.get("productDesc")?.toString()
-		: "N/A";
+	const productDesc = event.get("productDesc")?.toString();
 	//"on" is the default value an <input type="checkbox"/> gives when its checked and is submitted
 	const availability = event.get("availability") === "on";
-	if (productName && productDesc) {
+	if (productName) {
 		const product = await prismadb.products.update({
 			data: {
 				name: productName,
 				description: productDesc,
-				imgUrl: "N/A",
 				isAvailable: availability,
 			},
 			where: {
@@ -77,4 +81,28 @@ export async function editProduct(event: FormData, productID: string) {
 		});
 		return product;
 	} else return null;
+}
+
+export async function getAllCategories() {
+	const categories = await prismadb.menuCategories.findMany();
+	return categories;
+}
+
+export async function getCategory(categoryName: string) {
+	const category = await prismadb.menuCategories.findUnique({
+		where: {
+			name: categoryName,
+		},
+		include: {
+			product: true,
+		},
+	});
+	return category;
+}
+
+export async function deleteCategory(categoryName: string) {
+	const category = await prismadb.menuCategories.delete({
+		where: { name: categoryName },
+	});
+	return category;
 }

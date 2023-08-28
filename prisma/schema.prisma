@@ -19,7 +19,7 @@ model User {
   email String? @unique
   phone Int? @unique
   password String
-  role Role
+  role Role @default(USER)
   createdAt DateTime @default(now())
   userPreference UserPreferences?
 }
@@ -35,14 +35,23 @@ model UserPreferences{
 model Products{
   id String @id @default(uuid())
   name String @unique
-  imgUrl String
-  description String
+  imgUrl String?
+  description String @default("N/A")
   isAvailable Boolean
+  categoryID String
+  category MenuCategories @relation(fields: [categoryID], references: [id], onUpdate: Cascade)
+  @@index([categoryID])
 }
 
+model MenuCategories{
+  id String @id @default(uuid())
+  name String @unique
+  product Products[]
+}
+// dont link this up with User, lists cant be optional, which means Reservations cant be optional to users
 model Reservations{
   id String @id @default(uuid())
-  userID String
+  userID String @unique
 }
 
 enum Role {

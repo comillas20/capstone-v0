@@ -2,8 +2,11 @@
 import Header from "../components/Header";
 import {
 	createNewProduct,
+	deleteCategory,
 	deleteProducts,
+	getAllCategories,
 	getAllProducts,
+	getCategory,
 } from "./serverActions";
 import Button from "../components/Button";
 import { useEffect, useRef, useState, useTransition } from "react";
@@ -11,17 +14,28 @@ import useSWR, { useSWRConfig } from "swr";
 import { useRouter } from "next/navigation";
 import { twMerge } from "tailwind-merge";
 import Alert from "@components/Alert";
+import { Combobox } from "@headlessui/react";
 
 export default function Products() {
-	const headers = ["id", "name", "description", "isAvailable"];
-	const { data, error, isLoading } = useSWR("getAllProducts", getAllProducts);
-	const modalRef = useRef<HTMLDialogElement>(null);
-	const formRef = useRef<HTMLFormElement>(null);
+	const headers = ["ID", "Product name", "Category", "Availability"];
+	const allProducts = useSWR("getAllProducts", getAllProducts);
+	const allCategories = useSWR("getAllCategories", getAllCategories);
+	const newProductModalRef = useRef<HTMLDialogElement>(null);
+	const newProductFormRef = useRef<HTMLFormElement>(null);
 	const [isSaving, startSaving] = useTransition();
 	const [isDeleting, startDeleting] = useTransition();
 	const { mutate } = useSWRConfig();
 	const [selectMode, setSelectMode] = useState(false);
 	const [selectedRows, setSelectedRows] = useState<string[]>([]);
+	const [selectedCategory, setSelectedCategory] = useState("");
+	const [categoryQuery, setCategoryQuery] = useState("");
+
+	const filteredCategories =
+		categoryQuery === ""
+			? allCategories.data
+			: allCategories.data?.filter(category => {
+					return category.name.toLowerCase().includes(categoryQuery.toLowerCase());
+			  });
 	const [notification, setNotification] = useState<{
 		visibility: boolean;
 		text: string;
@@ -56,9 +70,9 @@ export default function Products() {
 				<Button
 					onClick={() => {
 						if (isSaving) return;
-						modalRef.current?.showModal();
+						newProductModalRef.current?.showModal();
 					}}>
-					{isSaving ? "Saving..." : "New +"}
+					{isSaving ? "Saving..." : "New product"}
 				</Button>
 			</Header>
 			{notification.visibility && (
@@ -70,10 +84,10 @@ export default function Products() {
 					{notification.text}
 				</Alert>
 			)}
-			{isLoading ? (
+			{allProducts.isLoading ? (
 				<div>Loading...</div>
-			) : error ? (
-				<div>An error occured {error}</div>
+			) : allProducts.error ? (
+				<div>An error occured. Please refresh the browser. {allProducts.error}</div>
 			) : (
 				<div className="max-h-[69vh] w-full overflow-y-auto">
 					<table className="w-full">
@@ -85,8 +99,8 @@ export default function Products() {
 							</tr>
 						</thead>
 						<tbody>
-							{data &&
-								data.map((entries, dataIndex) => (
+							{allProducts.data &&
+								allProducts.data.map((entries, dataIndex) => (
 									<tr
 										onClick={() => {
 											if (selectMode) {
@@ -155,8 +169,8 @@ export default function Products() {
 										)}>
 										<td>{entries.id}</td>
 										<td>{entries.name}</td>
-										<td>{entries.description}</td>
-										<td>{entries.isAvailable.toString()}</td>
+										<td>{entries.category.name}</td>
+										<td>{entries.isAvailable ? "Available" : "N/A"}</td>
 									</tr>
 								))}
 						</tbody>
@@ -171,20 +185,22 @@ export default function Products() {
 						onClick={() =>
 							startDeleting(async () => {
 								const products = await deleteProducts(selectedRows);
+								const category = await getCategory(selectedCategory);
 
-								if (products > 1) {
+								if (products) {
+									if (category?.product.length === 0) {
+										await deleteCategory(selectedCategory);
+									}
+									const msg =
+										products > 1
+											? "Products selected are successfully deleted!"
+											: "The product " +
+											  allProducts.data?.find(e => e.id === selectedRows[0])?.name +
+											  " is successfully deleted!";
+
 									setNotification({
 										visibility: true,
-										text: "Products selected are successfully deleted!",
-										msgType: "Success",
-									});
-								} else if (products) {
-									setNotification({
-										visibility: true,
-										text:
-											"The product " +
-											data?.find(e => e.id === selectedRows[0])?.name +
-											" is successfully deleted!",
+										text: msg,
 										msgType: "Success",
 									});
 								} else
@@ -194,6 +210,7 @@ export default function Products() {
 										msgType: "Failed",
 									});
 								mutate("getAllProducts");
+								mutate("getAllCategories");
 								setSelectMode(false);
 							})
 						}>
@@ -201,10 +218,14 @@ export default function Products() {
 					</Button>
 				</div>
 			)}
-			<dialog ref={modalRef}>
+
+			{/* Modal for creating new products */}
+			<dialog ref={newProductModalRef} className="rounded-md p-4">
+				<h2 className="mb-4">Create a new product</h2>
 				<form
 					action={e => {
-						formRef.current?.reset();
+						newProductModalRef.current?.close();
+						newProductFormRef.current?.reset();
 						startSaving(async () => {
 							const product = await createNewProduct(e);
 							if (product) {
@@ -214,6 +235,7 @@ export default function Products() {
 									msgType: "Success",
 								});
 								mutate("getAllProducts");
+								mutate("getAllCategories");
 							} else
 								setNotification({
 									visibility: true,
@@ -222,35 +244,64 @@ export default function Products() {
 								});
 						});
 					}}
-					className="flex flex-col gap-4 p-4"
-					ref={formRef}>
+					className="flex flex-col gap-4"
+					ref={newProductFormRef}>
 					<input
 						type="text"
 						placeholder="Product name"
 						name="productName"
+						className="rounded-md border border-black p-2"
 						required
 					/>
 					<textarea
-						className="h-36 w-96 resize-none"
+						className="h-36 w-96 resize-none rounded-md border border-black p-2"
 						placeholder="Description"
 						name="productDesc"></textarea>
-					<label className="self-end">
-						<input type="checkbox" name="availability" />
-						Available
+					<Combobox
+						as="div"
+						value={selectedCategory}
+						onChange={setSelectedCategory}
+						className="rounded-md border border-black p-2"
+						name="categoryName">
+						<div className="flex items-center justify-between gap-4">
+							<Combobox.Input
+								className="flex-grow"
+								onChange={event => {
+									setSelectedCategory(event.target.value);
+									setCategoryQuery(event.target.value);
+								}}
+								placeholder="--Choose category--"
+								required
+							/>
+							<Combobox.Button className="mx-4 inline-block border-x-[0.3em] border-b-0 border-t-[0.3em] border-solid border-black border-x-transparent align-[0.255em]"></Combobox.Button>
+						</div>
+
+						<Combobox.Options>
+							{filteredCategories?.map(category => (
+								<Combobox.Option key={category.id} value={category.name}>
+									{category.name}
+								</Combobox.Option>
+							))}
+						</Combobox.Options>
+					</Combobox>
+					<label className="select-none self-end rounded-md border border-black p-2">
+						<input type="checkbox" name="availability" /> Available
 					</label>
 
 					<div className="flex flex-row justify-end gap-4">
 						<input
 							type="button"
 							value="Cancel"
-							className="p-2"
-							onClick={() => modalRef.current?.close()}
+							className="border border-accentDark p-2"
+							onClick={() => {
+								newProductFormRef.current?.reset();
+								newProductModalRef.current?.close();
+							}}
 						/>
 						<input
 							type="submit"
 							value="Save"
 							className="bg-accentDark p-2 text-white"
-							onClick={() => modalRef.current?.close()}
 						/>
 					</div>
 				</form>
