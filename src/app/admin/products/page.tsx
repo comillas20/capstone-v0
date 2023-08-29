@@ -11,14 +11,14 @@ import {
 import Button from "../components/Button";
 import { useEffect, useRef, useState, useTransition } from "react";
 import useSWR, { useSWRConfig } from "swr";
-import { useRouter } from "next/navigation";
-import { twMerge } from "tailwind-merge";
 import Alert from "@components/Alert";
 import { Combobox } from "@headlessui/react";
+import ProductsTable from "./components/ProductsTable";
 
 export default function Products() {
-	const headers = ["ID", "Product name", "Category", "Availability"];
-	const allProducts = useSWR("getAllProducts", getAllProducts);
+	const allProducts = useSWR("getAllProducts", () =>
+		getAllProducts({ id: true, name: true, category: true, isAvailable: true })
+	);
 	const allCategories = useSWR("getAllCategories", getAllCategories);
 	const newProductModalRef = useRef<HTMLDialogElement>(null);
 	const newProductFormRef = useRef<HTMLFormElement>(null);
@@ -45,8 +45,6 @@ export default function Products() {
 		text: "",
 		msgType: "Normal",
 	});
-	const router = useRouter();
-	let holdProductTimeout: NodeJS.Timeout;
 
 	useEffect(() => {
 		if (!selectMode && selectedRows.length != 0) {
@@ -89,93 +87,13 @@ export default function Products() {
 			) : allProducts.error ? (
 				<div>An error occured. Please refresh the browser. {allProducts.error}</div>
 			) : (
-				<div className="max-h-[69vh] w-full overflow-y-auto">
-					<table className="w-full">
-						<thead className="sticky top-0 bg-white">
-							<tr>
-								{headers.map((value, index) => (
-									<th key={index}>{value}</th>
-								))}
-							</tr>
-						</thead>
-						<tbody>
-							{allProducts.data &&
-								allProducts.data.map((entries, dataIndex) => (
-									<tr
-										onClick={() => {
-											if (selectMode) {
-												const doesExist = selectedRows.find(e => e === entries.id);
-												if (doesExist) {
-													setSelectedRows(prevSelectedRows => {
-														const newSelectedRows = prevSelectedRows.filter(
-															e => e !== entries.id
-														);
-														if (newSelectedRows.length === 0) {
-															setSelectMode(false);
-														}
-														return newSelectedRows;
-													});
-												} else
-													setSelectedRows(prevSelectedRows => [
-														...prevSelectedRows,
-														entries.id,
-													]);
-											} else router.push("products/".concat(entries.name));
-										}}
-										onMouseDown={() => {
-											holdProductTimeout = setTimeout(() => {
-												setSelectMode(true);
-											}, 1000);
-										}}
-										onMouseUp={() => {
-											clearTimeout(holdProductTimeout);
-										}}
-										onTouchStart={() => {
-											holdProductTimeout = setTimeout(() => {
-												setSelectMode(prevMode => {
-													const doesExist = selectedRows.find(e => e === entries.id);
-													if (doesExist) {
-														setSelectedRows(prevSelectedRows => {
-															const newSelectedRows = prevSelectedRows.filter(
-																e => e !== entries.id
-															);
-															if (newSelectedRows.length === 0) {
-																setSelectMode(false);
-															}
-															return newSelectedRows;
-														});
-													} else
-														setSelectedRows(prevSelectedRows => [
-															...prevSelectedRows,
-															entries.id,
-														]);
-													return true;
-												});
-											}, 1000);
-										}}
-										onTouchEnd={() => {
-											clearTimeout(holdProductTimeout);
-										}}
-										onTouchCancel={() => {
-											clearTimeout(holdProductTimeout);
-										}}
-										key={dataIndex}
-										className={twMerge(
-											dataIndex % 2 == 1 ? "bg-brand-200/40" : "",
-											" border-b border-brand-100 hover:cursor-pointer hover:bg-accentDark hover:text-white",
-											selectedRows.find(e => e === entries.id)
-												? "bg-accentDark-700 text-white"
-												: ""
-										)}>
-										<td>{entries.id}</td>
-										<td>{entries.name}</td>
-										<td>{entries.category.name}</td>
-										<td>{entries.isAvailable ? "Available" : "N/A"}</td>
-									</tr>
-								))}
-						</tbody>
-					</table>
-				</div>
+				<ProductsTable
+					products={allProducts.data}
+					selectMode={selectMode}
+					setSelectMode={setSelectMode}
+					selectedRows={selectedRows}
+					setSelectedRows={setSelectedRows}
+				/>
 			)}
 			{selectMode && (
 				<div className="mt-4 flex w-full flex-row justify-end gap-4">

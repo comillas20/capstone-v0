@@ -22,6 +22,7 @@ model User {
   role Role @default(USER)
   createdAt DateTime @default(now())
   userPreference UserPreferences?
+  reservations Reservations[]
 }
 
 model UserPreferences{
@@ -48,10 +49,12 @@ model MenuCategories{
   name String @unique
   product Products[]
 }
-// dont link this up with User, lists cant be optional, which means Reservations cant be optional to users
+
 model Reservations{
   id String @id @default(uuid())
   userID String @unique
+  reservationID String @unique
+  reserver User? @relation(fields: [reservationID], references: [id])
 }
 
 enum Role {

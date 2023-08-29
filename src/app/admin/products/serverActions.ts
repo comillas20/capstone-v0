@@ -1,5 +1,6 @@
 "use server";
 import prismadb from "../../../../lib/prismadb";
+
 export async function createNewProduct(event: FormData) {
 	const productName = event.get("productName")?.toString();
 	const productDesc = event.get("productDesc")?.toString();
@@ -20,7 +21,12 @@ export async function createNewProduct(event: FormData) {
 					},
 				},
 			},
-			include: {
+			select: {
+				id: true,
+				name: true,
+				description: true,
+				imgUrl: true,
+				isAvailable: true,
 				category: true,
 			},
 		});
@@ -28,11 +34,18 @@ export async function createNewProduct(event: FormData) {
 	} else return null;
 }
 
-export async function getAllProducts() {
+type ProductSelect = {
+	id?: boolean;
+	name?: boolean;
+	description?: boolean;
+	imgUrl?: boolean;
+	isAvailable?: boolean;
+	category?: boolean;
+};
+
+export async function getAllProducts(select: ProductSelect) {
 	const products = await prismadb.products.findMany({
-		include: {
-			category: true,
-		},
+		select: select,
 	});
 	return products;
 }
@@ -41,6 +54,14 @@ export async function getProduct(id: string) {
 	const product = await prismadb.products.findUnique({
 		where: {
 			id: id,
+		},
+		select: {
+			id: true,
+			name: true,
+			description: true,
+			imgUrl: true,
+			isAvailable: true,
+			category: true,
 		},
 	});
 	return product;
@@ -74,9 +95,12 @@ export async function editProduct(event: FormData, productID: string) {
 				id: productID,
 			},
 			select: {
+				id: true,
 				name: true,
 				description: true,
+				imgUrl: true,
 				isAvailable: true,
+				category: true,
 			},
 		});
 		return product;
