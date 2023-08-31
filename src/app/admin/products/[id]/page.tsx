@@ -3,32 +3,33 @@ import Image from "next/image";
 import prismadb from "../../../../../lib/prismadb";
 import { getAllProducts } from "../serverActions";
 type ProductProps = {
-	params: { name: string };
+	params: { id: string };
 };
+export const dynamicParams = false;
 export async function generateMetadata({ params }: ProductProps) {
 	const product = await prismadb.products.findUnique({
 		where: {
-			name: params.name,
+			id: params.id,
 		},
 	});
 	return {
 		title: product
 			? product.name.concat(" | Jakelou")
-			: "Product Not Found".concat(" | Jakelou"),
+			: "Error: Product not found",
 	};
 }
 
 export async function generateStaticParams() {
-	const products = await getAllProducts();
+	const products = await getAllProducts({ id: true });
 	return products.map(product => ({
-		name: product.name,
+		id: product.id,
 	}));
 }
 
 export default async function Product({ params }: ProductProps) {
 	const product = await prismadb.products.findUnique({
 		where: {
-			name: params.name,
+			id: params.id,
 		},
 	});
 	return (

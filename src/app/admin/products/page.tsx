@@ -16,8 +16,13 @@ import { Combobox } from "@headlessui/react";
 import ProductsTable from "./components/ProductsTable";
 
 export default function Products() {
-	const allProducts = useSWR("getAllProducts", () =>
-		getAllProducts({ id: true, name: true, category: true, isAvailable: true })
+	const allProducts = useSWR(
+		"getAllProducts",
+		() =>
+			getAllProducts({ id: true, name: true, category: true, isAvailable: true }),
+		{
+			revalidateOnReconnect: true,
+		}
 	);
 	const allCategories = useSWR("getAllCategories", getAllCategories);
 	const newProductModalRef = useRef<HTMLDialogElement>(null);
@@ -85,7 +90,18 @@ export default function Products() {
 			{allProducts.isLoading ? (
 				<div>Loading...</div>
 			) : allProducts.error ? (
-				<div>An error occured. Please refresh the browser. {allProducts.error}</div>
+				<div>
+					<span>
+						An error occured. Please{" "}
+						<button
+							className="text-blue-500 underline hover:text-blue-700"
+							onClick={() => window.location.reload()}>
+							reload
+						</button>{" "}
+						the list.
+					</span>
+					<p>{allProducts.error}</p>
+				</div>
 			) : (
 				<ProductsTable
 					products={allProducts.data}

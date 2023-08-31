@@ -53,8 +53,8 @@ model MenuCategories{
 model Reservations{
   id String @id @default(uuid())
   userID String @unique
-  reservationID String @unique
-  reserver User? @relation(fields: [reservationID], references: [id])
+  reserverID String @unique
+  reserver User? @relation(fields: [reserverID], references: [id])
 }
 
 enum Role {

@@ -61,7 +61,8 @@ export default function Navigation() {
 										"group mb-0.5 mr-2.5 flex w-full cursor-pointer items-center gap-2 px-4 py-2 align-middle font-medium hover:bg-brand-700 hover:text-white",
 										currentRoute === navButton.href ? "bg-brand-700 text-white" : ""
 									)}
-									href={navButton.href}>
+									href={navButton.href}
+									replace>
 									<svg
 										className={twMerge(
 											"inline h-4 w-4 justify-center align-[-0.125em] group-hover:text-inherit",

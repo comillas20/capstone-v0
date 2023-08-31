@@ -65,7 +65,7 @@ function ProductsTable({
 													...prevSelectedRows,
 													entries.id,
 												]);
-										} else router.push("products/".concat(entries.name));
+										} else router.push("products/".concat(entries.id));
 									}}
 									onMouseDown={() => {
 										holdProductTimeout = setTimeout(() => {
