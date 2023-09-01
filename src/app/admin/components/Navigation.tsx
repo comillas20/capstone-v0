@@ -11,7 +11,7 @@ export default function Navigation() {
 	}
 	const navButtonProps = [
 		[
-			{ icon: "#house", name: "Dashboard", href: "/admin" },
+			{ icon: "#house", name: "Dashboard", href: "/admin/dashboard" },
 			{
 				icon: "#file-earmark-text",
 				name: "Reservations",
@@ -59,14 +59,20 @@ export default function Navigation() {
 								<Link
 									className={twMerge(
 										"group mb-0.5 mr-2.5 flex w-full cursor-pointer items-center gap-2 px-4 py-2 align-middle font-medium hover:bg-brand-700 hover:text-white",
-										currentRoute === navButton.href ? "bg-brand-700 text-white" : ""
+										currentRoute.startsWith(navButton.href) &&
+											navButton.name !== "Sign out"
+											? "bg-brand-700 text-white"
+											: ""
 									)}
 									href={navButton.href}
 									replace>
 									<svg
 										className={twMerge(
 											"inline h-4 w-4 justify-center align-[-0.125em] group-hover:text-inherit",
-											currentRoute === navButton.href ? "text-white" : "text-black"
+											currentRoute.startsWith(navButton.href) &&
+												navButton.name !== "Sign out"
+												? "text-white"
+												: "text-black"
 										)}>
 										<use href={navButton.icon}></use>
 									</svg>

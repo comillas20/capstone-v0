@@ -1,5 +1,4 @@
 import React from "react";
-import ProductRow from "./ProductRow";
 import { twMerge } from "tailwind-merge";
 import { useRouter } from "next/navigation";
 
@@ -14,6 +13,7 @@ export interface ProductData {
 	description: string;
 	isAvailable: boolean;
 }
+
 type ProductsTableProps = {
 	products: ProductData[] | undefined;
 	selectMode: boolean;
@@ -66,6 +66,9 @@ function ProductsTable({
 													entries.id,
 												]);
 										} else router.push("products/".concat(entries.id));
+										/* Using name as params instead of ID is hard mainly because 
+										I dont know how to make prisma/planetscale query case insensitive.
+										*/
 									}}
 									onMouseDown={() => {
 										holdProductTimeout = setTimeout(() => {
