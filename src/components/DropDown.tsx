@@ -56,7 +56,7 @@ export default function DropDown({
 							}
 							key={index}>
 							<button
-								className="mx-4 my-1 w-full text-left"
+								className="w-full px-4 py-1 text-left"
 								onClick={() => optionOnClick(child)}>
 								{child}
 							</button>

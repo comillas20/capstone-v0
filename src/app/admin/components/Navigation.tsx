@@ -26,7 +26,7 @@ export default function Navigation() {
 				notification: 99,
 				href: "/admin/customers",
 			},
-			{ icon: "#graph-up", name: "Reports", href: "/admin/reports" },
+			//{ icon: "#graph-up", name: "Reports", href: "/admin/reports" },
 			{
 				icon: "#cash-coin",
 				name: "Refund Requests",

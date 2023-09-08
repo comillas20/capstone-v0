@@ -1,3 +1,8 @@
-To add in settings:
+To add in admin settings:
     notification duration
-    default landing page for admin dashboard
+    default landing page/tab for admin dashboard
+    admin account settings
+
+Reminder for future:
+    - Jakelou have different branches in the city, if they decided to make another branch, 
+    who makes the account of the new admin of the new branch?
