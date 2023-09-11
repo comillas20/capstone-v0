@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import { useRouter } from "next/navigation";
 
@@ -29,9 +29,35 @@ function ProductsTable({
 	selectedRows,
 	setSelectedRows,
 }: ProductsTableProps) {
-	const headers = ["ID", "Product name", "Category", "Availability"];
+	const headers = ["Dish", "Category", "Availability"];
 	const router = useRouter();
 	let holdProductTimeout: NodeJS.Timeout;
+
+	const [sortedBy, setSortedBy] = useState({ sorter: "", orderType: "" });
+	function sortTable(sorter: string) {
+		if (sorter === sortedBy.sorter) {
+			setSortedBy({
+				sorter: sorter,
+				orderType: sortedBy.orderType === "asc" ? "desc" : "asc",
+			});
+			products?.reverse();
+		} else {
+			setSortedBy({ sorter: sorter, orderType: "asc" });
+			products?.sort((a, b) => {
+				switch (sorter) {
+					case headers[0]:
+					default:
+						return a.name.localeCompare(b.name);
+					case headers[1]:
+						return a.category.name.localeCompare(b.category.name);
+					case headers[2]:
+						const numA = a.isAvailable ? 1 : 0;
+						const numB = b.isAvailable ? 1 : 0;
+						return numB - numA;
+				}
+			});
+		}
+	}
 	return (
 		<>
 			<div className="max-h-[69vh] w-full overflow-y-auto">
@@ -39,7 +65,21 @@ function ProductsTable({
 					<thead className="sticky top-0 bg-white">
 						<tr>
 							{headers.map((value, index) => (
-								<th key={index}>{value}</th>
+								<th
+									key={index}
+									className="cursor-pointer select-none"
+									onClick={() => sortTable(value)}>
+									{value}
+									{sortedBy.sorter === value && (
+										<span
+											className={twMerge(
+												"ml-[0.255em] inline-block border-x-[0.3em] border-solid border-black border-x-transparent align-[0.255em]",
+												sortedBy.orderType === "asc"
+													? "border-b-0 border-t-[0.3em]"
+													: "border-b-[0.3em] border-t-0"
+											)}></span>
+									)}
+								</th>
 							))}
 						</tr>
 					</thead>
@@ -115,7 +155,6 @@ function ProductsTable({
 											? "bg-accentDark-700 text-white"
 											: ""
 									)}>
-									<td>{entries.id}</td>
 									<td>{entries.name}</td>
 									<td>{entries.category.name}</td>
 									<td>{entries.isAvailable ? "Available" : "N/A"}</td>
