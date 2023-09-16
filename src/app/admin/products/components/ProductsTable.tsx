@@ -1,6 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useTransition } from "react";
 import { twMerge } from "tailwind-merge";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import Button from "@app/admin/components/Button";
+import { deleteCategory, deleteProducts, getCategory } from "../serverActions";
+import { useSWRConfig } from "swr";
 
 export interface ProductData {
 	category: {
@@ -20,6 +24,15 @@ type ProductsTableProps = {
 	setSelectMode: React.Dispatch<React.SetStateAction<boolean>>;
 	selectedRows: string[];
 	setSelectedRows: React.Dispatch<React.SetStateAction<string[]>>;
+	selectedCategory: string;
+	setNotification: React.Dispatch<
+		React.SetStateAction<{
+			visibility: boolean;
+			text: string;
+			msgType: "Success" | "Failed" | "Error" | "Normal";
+		}>
+	>;
+	className?: string;
 };
 
 function ProductsTable({
@@ -28,9 +41,13 @@ function ProductsTable({
 	setSelectMode,
 	selectedRows,
 	setSelectedRows,
+	selectedCategory,
+	setNotification,
+	className,
 }: ProductsTableProps) {
 	const headers = ["Dish", "Category", "Availability"];
-	const router = useRouter();
+	const [isDeleting, startDeleting] = useTransition();
+	const { mutate } = useSWRConfig();
 	let holdProductTimeout: NodeJS.Timeout;
 
 	const [sortedBy, setSortedBy] = useState({ sorter: "", orderType: "" });
@@ -59,10 +76,10 @@ function ProductsTable({
 		}
 	}
 	return (
-		<>
-			<div className="max-h-[69vh] w-full overflow-y-auto">
+		<div className={className}>
+			<div className="overflow-y-auto">
 				<table className="w-full">
-					<thead className="sticky top-0 bg-white">
+					<thead className="sticky top-0">
 						<tr>
 							{headers.map((value, index) => (
 								<th
@@ -105,10 +122,7 @@ function ProductsTable({
 													...prevSelectedRows,
 													entries.id,
 												]);
-										} else router.push("products/".concat(entries.id));
-										/* Using name as params instead of ID is hard mainly because 
-										I dont know how to make prisma/planetscale query case insensitive.
-										*/
+										}
 									}}
 									onMouseDown={() => {
 										holdProductTimeout = setTimeout(() => {
@@ -149,13 +163,24 @@ function ProductsTable({
 									}}
 									key={dataIndex}
 									className={twMerge(
-										dataIndex % 2 == 1 ? "bg-brand-200/40" : "",
-										" border-b border-brand-100 hover:cursor-pointer hover:bg-accentDark hover:text-white",
+										dataIndex % 2 == 1 ? "border border-brand-100 bg-brand/10" : "",
+										"rounded-md p-1 hover:bg-accentDark hover:text-white",
 										selectedRows.find(e => e === entries.id)
 											? "bg-accentDark-700 text-white"
 											: ""
 									)}>
-									<td>{entries.name}</td>
+									<td>
+										<Link
+											className="hover:underline"
+											href={
+												"products/".concat(entries.id)
+												/* Using name as params instead of ID is hard mainly because 
+											I dont know how to make prisma/planetscale query case insensitive.
+											*/
+											}>
+											{entries.name}
+										</Link>
+									</td>
 									<td>{entries.category.name}</td>
 									<td>{entries.isAvailable ? "Available" : "N/A"}</td>
 								</tr>
@@ -163,7 +188,49 @@ function ProductsTable({
 					</tbody>
 				</table>
 			</div>
-		</>
+			{/* Options that occur when selection mode is on */}
+			{selectMode && (
+				<div className="mt-4 flex w-full flex-row justify-end gap-4">
+					{selectMode && <Button onClick={() => setSelectMode(false)}>Clear</Button>}
+					<Button
+						disabled={selectedRows.length === 0}
+						onClick={() =>
+							startDeleting(async () => {
+								const deletedProducts = await deleteProducts(selectedRows);
+								const category = await getCategory(selectedCategory);
+
+								if (deletedProducts) {
+									if (category?.product.length === 0) {
+										await deleteCategory(selectedCategory);
+									}
+									const msg =
+										deletedProducts > 1
+											? "Products selected are successfully deleted!"
+											: "The product " +
+											  products?.find(e => e.id === selectedRows[0])?.name +
+											  " is successfully deleted!";
+
+									setNotification({
+										visibility: true,
+										text: msg,
+										msgType: "Success",
+									});
+								} else
+									setNotification({
+										visibility: true,
+										text: "The products were not deleted.",
+										msgType: "Failed",
+									});
+								mutate("getAllProducts");
+								mutate("getAllCategories");
+								setSelectMode(false);
+							})
+						}>
+						{isDeleting ? "Deleting... " : "Delete"}
+					</Button>
+				</div>
+			)}
+		</div>
 	);
 }
 

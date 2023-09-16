@@ -2,11 +2,8 @@
 import Header from "../../components/Header";
 import {
 	createNewProduct,
-	deleteCategory,
-	deleteProducts,
 	getAllCategories,
 	getAllProducts,
-	getCategory,
 } from "../serverActions";
 import Button from "../../components/Button";
 import { useEffect, useRef, useState, useTransition } from "react";
@@ -28,7 +25,6 @@ export default function Products() {
 	const newProductModalRef = useRef<HTMLDialogElement>(null);
 	const newProductFormRef = useRef<HTMLFormElement>(null);
 	const [isSaving, startSaving] = useTransition();
-	const [isDeleting, startDeleting] = useTransition();
 	const { mutate } = useSWRConfig();
 	const [selectMode, setSelectMode] = useState(false);
 	const [selectedRows, setSelectedRows] = useState<string[]>([]);
@@ -103,53 +99,20 @@ export default function Products() {
 					<p>{allProducts.error}</p>
 				</div>
 			) : (
-				<ProductsTable
-					products={allProducts.data}
-					selectMode={selectMode}
-					setSelectMode={setSelectMode}
-					selectedRows={selectedRows}
-					setSelectedRows={setSelectedRows}
-				/>
-			)}
-			{selectMode && (
-				<div className="mt-4 flex w-full flex-row justify-end gap-4">
-					{selectMode && <Button onClick={() => setSelectMode(false)}>Clear</Button>}
-					<Button
-						disabled={selectedRows.length === 0}
-						onClick={() =>
-							startDeleting(async () => {
-								const products = await deleteProducts(selectedRows);
-								const category = await getCategory(selectedCategory);
-
-								if (products) {
-									if (category?.product.length === 0) {
-										await deleteCategory(selectedCategory);
-									}
-									const msg =
-										products > 1
-											? "Products selected are successfully deleted!"
-											: "The product " +
-											  allProducts.data?.find(e => e.id === selectedRows[0])?.name +
-											  " is successfully deleted!";
-
-									setNotification({
-										visibility: true,
-										text: msg,
-										msgType: "Success",
-									});
-								} else
-									setNotification({
-										visibility: true,
-										text: "The products were not deleted.",
-										msgType: "Failed",
-									});
-								mutate("getAllProducts");
-								mutate("getAllCategories");
-								setSelectMode(false);
-							})
-						}>
-						{isDeleting ? "Deleting... " : "Delete"}
-					</Button>
+				<div className="grid max-h-[69vh] w-full grid-cols-12 gap-8">
+					<ProductsTable
+						className="col-span-12 max-h-full lg:col-span-9"
+						products={allProducts.data}
+						selectMode={selectMode}
+						setSelectMode={setSelectMode}
+						selectedRows={selectedRows}
+						setSelectedRows={setSelectedRows}
+						selectedCategory={selectedCategory}
+						setNotification={setNotification}
+					/>
+					<div className="mr-4 hidden h-80 rounded-md border border-accentDark lg:col-span-3 lg:block">
+						What filter options should I put?
+					</div>
 				</div>
 			)}
 

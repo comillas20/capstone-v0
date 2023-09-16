@@ -13,11 +13,14 @@ export default function AdminLayout({
 	children: React.ReactNode;
 }) {
 	return (
-		<div className="grid h-screen grid-cols-12">
-			<Navigation></Navigation>
-			<main className="col-span-12 bg-white p-4 md:col-span-9 lg:col-span-10">
-				{children}
-			</main>
-		</div>
+		<>
+			<div className="h-16 w-screen bg-brand drop-shadow-lg"></div>
+			<div className="grid h-screen grid-cols-12">
+				<Navigation></Navigation>
+				<main className="col-span-12 bg-primaryLight p-4 dark:bg-primaryDark md:col-span-9 lg:col-span-10">
+					{children}
+				</main>
+			</div>
+		</>
 	);
 }

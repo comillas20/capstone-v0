@@ -1,6 +1,7 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { setTheme, getPreferredTheme } from "../../lib/theme-modes";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -15,6 +16,17 @@ export default function RootLayout({
 }: {
 	children: React.ReactNode;
 }) {
+	if (typeof window !== "undefined") {
+		const preferedTheme = getPreferredTheme();
+		setTheme(preferedTheme);
+		//if website theme is set to auto and user changes theme in their pc, then change the website theme according to new preference
+		window
+			.matchMedia("(prefers-color-scheme: dark)")
+			.addEventListener("change", () => {
+				setTheme(getPreferredTheme());
+			});
+	}
+
 	return (
 		<html lang="en">
 			<body className={inter.className}>{children}</body>
