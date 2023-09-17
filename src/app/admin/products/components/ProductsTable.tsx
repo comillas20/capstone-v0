@@ -77,116 +77,116 @@ function ProductsTable({
 	}
 	return (
 		<div className={className}>
-			<div className="overflow-y-auto">
-				<table className="w-full">
-					<thead className="sticky top-0">
-						<tr>
-							{headers.map((value, index) => (
-								<th
-									key={index}
-									className="cursor-pointer select-none"
-									onClick={() => sortTable(value)}>
-									{value}
-									{sortedBy.sorter === value && (
-										<span
-											className={twMerge(
-												"ml-[0.255em] inline-block border-x-[0.3em] border-solid border-black border-x-transparent align-[0.255em]",
-												sortedBy.orderType === "asc"
-													? "border-b-0 border-t-[0.3em]"
-													: "border-b-[0.3em] border-t-0"
-											)}></span>
-									)}
-								</th>
-							))}
-						</tr>
-					</thead>
-					<tbody>
-						{products &&
-							products.map((entries, dataIndex) => (
-								<tr
-									onClick={() => {
-										if (selectMode) {
-											const doesExist = selectedRows.find(e => e === entries.id);
-											if (doesExist) {
-												setSelectedRows(prevSelectedRows => {
-													const newSelectedRows = prevSelectedRows.filter(
-														e => e !== entries.id
-													);
-													if (newSelectedRows.length === 0) {
-														setSelectMode(false);
-													}
-													return newSelectedRows;
-												});
-											} else
-												setSelectedRows(prevSelectedRows => [
-													...prevSelectedRows,
-													entries.id,
-												]);
-										}
-									}}
-									onMouseDown={() => {
-										holdProductTimeout = setTimeout(() => {
-											setSelectMode(true);
-										}, 1000);
-									}}
-									onMouseUp={() => {
-										clearTimeout(holdProductTimeout);
-									}}
-									onTouchStart={() => {
-										holdProductTimeout = setTimeout(() => {
-											setSelectMode(prevMode => {
-												const doesExist = selectedRows.find(e => e === entries.id);
-												if (doesExist) {
-													setSelectedRows(prevSelectedRows => {
-														const newSelectedRows = prevSelectedRows.filter(
-															e => e !== entries.id
-														);
-														if (newSelectedRows.length === 0) {
-															setSelectMode(false);
-														}
-														return newSelectedRows;
-													});
-												} else
-													setSelectedRows(prevSelectedRows => [
-														...prevSelectedRows,
-														entries.id,
-													]);
-												return true;
-											});
-										}, 1000);
-									}}
-									onTouchEnd={() => {
-										clearTimeout(holdProductTimeout);
-									}}
-									onTouchCancel={() => {
-										clearTimeout(holdProductTimeout);
-									}}
-									key={dataIndex}
+			<div className="flex w-full flex-col gap-1 overflow-y-auto" role="table">
+				<div role="heading" className="sticky top-0 grid grid-cols-12 p-1">
+					{headers.map((value, index) => (
+						<div
+							key={index}
+							className="col-span-4 cursor-pointer select-none font-bold"
+							onClick={() => sortTable(value)}>
+							{value}
+							{sortedBy.sorter === value && (
+								<span
 									className={twMerge(
-										dataIndex % 2 == 1 ? "border border-brand-100 bg-brand/10" : "",
-										"rounded-md p-1 hover:bg-accentDark hover:text-white",
-										selectedRows.find(e => e === entries.id)
-											? "bg-accentDark-700 text-white"
-											: ""
-									)}>
-									<td>
-										<Link
-											className="hover:underline"
-											href={
-												"products/".concat(entries.id)
-												/* Using name as params instead of ID is hard mainly because 
+										"ml-[0.255em] inline-block border-x-[0.3em] border-solid border-black border-x-transparent align-[0.255em]",
+										sortedBy.orderType === "asc"
+											? "border-b-0 border-t-[0.3em]"
+											: "border-b-[0.3em] border-t-0"
+									)}></span>
+							)}
+						</div>
+					))}
+				</div>
+
+				{products &&
+					products.map((entries, dataIndex) => (
+						<div
+							role="row"
+							onClick={() => {
+								if (selectMode) {
+									const doesExist = selectedRows.find(e => e === entries.id);
+									if (doesExist) {
+										setSelectedRows(prevSelectedRows => {
+											const newSelectedRows = prevSelectedRows.filter(
+												e => e !== entries.id
+											);
+											if (newSelectedRows.length === 0) {
+												setSelectMode(false);
+											}
+											return newSelectedRows;
+										});
+									} else
+										setSelectedRows(prevSelectedRows => [
+											...prevSelectedRows,
+											entries.id,
+										]);
+								}
+							}}
+							onMouseDown={() => {
+								holdProductTimeout = setTimeout(() => {
+									setSelectMode(true);
+								}, 1000);
+							}}
+							onMouseUp={() => {
+								clearTimeout(holdProductTimeout);
+							}}
+							onTouchStart={() => {
+								holdProductTimeout = setTimeout(() => {
+									setSelectMode(prevMode => {
+										const doesExist = selectedRows.find(e => e === entries.id);
+										if (doesExist) {
+											setSelectedRows(prevSelectedRows => {
+												const newSelectedRows = prevSelectedRows.filter(
+													e => e !== entries.id
+												);
+												if (newSelectedRows.length === 0) {
+													setSelectMode(false);
+												}
+												return newSelectedRows;
+											});
+										} else
+											setSelectedRows(prevSelectedRows => [
+												...prevSelectedRows,
+												entries.id,
+											]);
+										return true;
+									});
+								}, 1000);
+							}}
+							onTouchEnd={() => {
+								clearTimeout(holdProductTimeout);
+							}}
+							onTouchCancel={() => {
+								clearTimeout(holdProductTimeout);
+							}}
+							key={dataIndex}
+							className={twMerge(
+								dataIndex % 2 == 1 ? "border border-brand-100 bg-brand/10" : "",
+								"grid grid-cols-12 rounded-md p-1 hover:bg-accent-900 hover:text-white",
+								selectedRows.find(e => e === entries.id)
+									? "bg-accent-700 text-white"
+									: ""
+							)}>
+							<span role="cell" className="col-span-4">
+								<Link
+									className="hover:underline"
+									href={
+										"products/".concat(entries.id)
+										/* Using name as params instead of ID is hard mainly because 
 											I dont know how to make prisma/planetscale query case insensitive.
 											*/
-											}>
-											{entries.name}
-										</Link>
-									</td>
-									<td>{entries.category.name}</td>
-									<td>{entries.isAvailable ? "Available" : "N/A"}</td>
-								</tr>
-							))}
-					</tbody>
-				</table>
+									}>
+									{entries.name}
+								</Link>
+							</span>
+							<span role="cell" className="col-span-4">
+								{entries.category.name}
+							</span>
+							<span role="cell" className="col-span-4">
+								{entries.isAvailable ? "Available" : "N/A"}
+							</span>
+						</div>
+					))}
 			</div>
 			{/* Options that occur when selection mode is on */}
 			{selectMode && (

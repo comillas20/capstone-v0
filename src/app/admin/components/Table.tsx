@@ -22,7 +22,7 @@ export default function Table({
 					{data.map((entries, dataIndex) => (
 						<tr
 							key={dataIndex}
-							className={(dataIndex % 2 == 1 ? "bg-brand-200/40" : "").concat(
+							className={(dataIndex % 2 == 1 ? "bg-brand/10" : "").concat(
 								" border-b border-brand-100"
 							)}>
 							{entries.map((value, entryIndex) => (

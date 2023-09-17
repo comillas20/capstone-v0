@@ -2,23 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-	--foreground-rgb: 0, 0, 0;
-}
-
-/* @media (prefers-color-scheme: dark) {
-	body {
-		background-color: #3a2e39;
-	}
-} */
-
 html,
 body {
 	overflow: hidden;
-}
-
-body {
-	color: rgb(var(--foreground-rgb));
 }
 
 h1 {

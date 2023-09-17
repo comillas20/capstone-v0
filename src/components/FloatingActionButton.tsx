@@ -13,7 +13,7 @@ export default function FloatingActionButton({
 	return (
 		<div
 			className={twMerge(
-				"fixed bottom-4 right-4 h-12 w-12 items-center justify-center rounded-[50%] border bg-accentDark text-white",
+				"fixed bottom-4 right-4 h-12 w-12 items-center justify-center rounded-[50%] border bg-accent text-white",
 				className
 			)}>
 			<button onClick={onclick}>{children}</button>

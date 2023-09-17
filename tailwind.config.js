@@ -20,25 +20,16 @@ module.exports = {
 					700: "#E42535",
 					900: "#DA1B2B",
 				},
-				primaryLight: {
-					DEFAULT: "#f1faee",
+				primary: {
+					light: "#f1faee",
+					dark: "#1d3557",
 				},
-				primaryDark: {
-					DEFAULT: "#1d3557",
-				},
-				accentLight: {
-					100: "#F5D2B8",
-					300: "#F0BC94",
-					DEFAULT: "#a8dadc",
-					700: "#EBA570",
-					900: "#E68F4C",
-				},
-				accentDark: {
-					100: "#2D808B",
-					300: "#23636C",
+				accent: {
+					100: "#5590B4",
+					300: "#4B86AA",
 					DEFAULT: "#457b9d",
-					700: "#19474D",
-					900: "#0F2B2E",
+					700: "#3E6F8E",
+					900: "#386480",
 				},
 			},
 		},

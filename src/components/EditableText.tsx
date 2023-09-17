@@ -38,7 +38,7 @@ export default function EditableText({ initialText, tag }: EditableTextProp) {
 						<input
 							type="submit"
 							value="Save"
-							className="mt-2 bg-accentDark p-2 text-white"
+							className="mt-2 bg-accent p-2 text-white"
 						/>
 					</div>
 				</form>
